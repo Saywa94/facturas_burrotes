@@ -4,3 +4,9 @@ __pycache__/
 db.sqlite3
 dist/
 build/
+
+instance/
+.pytest_cache/
+.coverage
+htmlcov/
+*.egg-info/
