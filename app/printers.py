@@ -107,7 +107,7 @@ def check_both():
 
 def init_wifi_printer(ip, port=9100):
     try:
-        printer = Network(ip, port=port, timeout=2)
+        printer = Network(ip, port=port, timeout=5)
         printer.set(align='center')
         return printer
     except DeviceNotFoundError as e:
