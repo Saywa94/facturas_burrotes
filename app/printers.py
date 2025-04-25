@@ -2,6 +2,7 @@ from escpos.printer import Network, Usb
 from escpos.exceptions import DeviceNotFoundError, USBNotFoundError
 from typing import Literal, overload
 import logging
+import time
 
 from flask import current_app
 
@@ -22,9 +23,9 @@ def print(
     printer_type = current_app.config[f"{printer_location.upper()}_PRINTER_TYPE"]
     printer_addr = current_app.config[f"{printer_location.upper()}_PRINTER_ADDR"]
 
-    printer = get_printer(printer_type, printer_addr)
-    if printer == None:
-        # TODO: Retry logic goes here
+    printer = retry_get_printer(printer_type, printer_addr)
+    if printer is None:
+        logging.error(f"Failed to connect to {printer_location} printer after retries.")
         return False
 
     if (printer_location == "kitchen"):
@@ -42,6 +43,17 @@ def get_printer(
         return init_usb_printer(printer_addr[0], printer_addr[1])
     elif (printer_type == "network"):
         return init_wifi_printer(printer_addr)
+
+def retry_get_printer(printer_type, printer_addr, retries=3, delay=1):
+    for attempt in range(retries):
+        try:
+            printer = get_printer(printer_type, printer_addr)
+            if printer:
+                return printer
+        except Exception as e:
+            logging.error(f"[Retry {attempt + 1}] Printer connection failed: {e}")
+        time.sleep(delay)
+    return None
 
 
 
