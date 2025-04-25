@@ -24,11 +24,14 @@ def print_receipt():
 
     return True
 
+# TODO: General printer function
 def print_order(order: Order):
-    p = init_wifi_printer(wifi_printer_ip) #Printer IP Address
+    # TODO: Retry connection logic
+    p = init_wifi_printer(wifi_printer_ip)
     if (p == None):
         return False
      
+    # TODO: Extract to function in orders.py
     p.ln(3)
     # Print Big Order number
     p.set(bold=True, align="center", custom_size=True, height=2, width=2)

@@ -4,6 +4,7 @@ __pycache__/
 db.sqlite3
 dist/
 build/
+.env
 
 instance/
 .pytest_cache/
