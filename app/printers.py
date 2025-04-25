@@ -1,91 +1,60 @@
 from escpos.printer import Network, Usb
 from escpos.exceptions import DeviceNotFoundError, USBNotFoundError
+from typing import Literal, overload
 import logging
 
-from .orders import Order
+from flask import current_app
 
-# Config constants
-# Sould be in a config file or come from DB
-wifi_printer_ip = "192.168.0.217"
-usb_id_vendor = 0x0483
-usb_id_product = 0x5743
+from .orders import Order, print_order
+from .receipts import Receipt, print_receipt
 
+# General printer function
+@overload
+def print(printer_location: Literal["kitchen"], data: Order) -> bool: ...
+@overload
+def print(printer_location: Literal["cashier"], data: Receipt) -> bool: ...
 
-def print_receipt():
-    cashier = init_usb_printer(usb_id_vendor, usb_id_product)
-    if (cashier == None):
+def print(
+        printer_location: Literal["kitchen", "cashier"],
+        data: Order | Receipt
+    ):
+
+    printer_type = current_app.config[f"{printer_location.upper()}_PRINTER_TYPE"]
+    printer_addr = current_app.config[f"{printer_location.upper()}_PRINTER_ADDR"]
+
+    printer = get_printer(printer_type, printer_addr)
+    if printer == None:
+        # TODO: Retry logic goes here
         return False
 
-    cashier.text("Fuck Yeah!!\n")
-    cashier.text("This is a Caja REGISTRADORA!!!\n")
-    cashier.qr("You can readme from your smartphone")
-    cashier.text("QRRRR Bitches!!!!\n")
-    cashier.cut()
+    if (printer_location == "kitchen"):
+        assert isinstance(data, Order)
+        return print_order(printer, order = data)
+    elif (printer_location == "cashier"):
+        assert isinstance(data, Receipt)
+        return print_receipt(printer, receipt = data)
 
-    return True
-
-# TODO: General printer function
-def print_order(order: Order):
-    # TODO: Retry connection logic
-    p = init_wifi_printer(wifi_printer_ip)
-    if (p == None):
-        return False
-     
-    # TODO: Extract to function in orders.py
-    p.ln(3)
-    # Print Big Order number
-    p.set(bold=True, align="center", custom_size=True, height=2, width=2)
-    p.textln(f"{order.number}")
-    p.ln(2)
-
-    # If there is a customer name
-    if order.customer:
-        p.set(align="left", custom_size=True, height=2, width=1)
-        p.textln(f"Cliente: {order.customer}")
-
-    # Date time
-    p.set(bold=False, align="left", custom_size=True, height=1, width=1)
-    p.textln(f"{order.date_time}\n")
-
-    # Dine In
-    if order.dine_in:
-        p.set(align='center', custom_size=True, height=2, width=1)
-        p.textln('En Local')
-
-        p.set(align='center', custom_size=True, height=1, width=1)
-        p.textln(f"beeper - {order.beeper}")
-        p.textln('-' * 32)
-
-        # TODO: Filter by order.is_cooked
-        for item in order.dine_in:
-            p.set(bold=True, align="left", custom_size=True, height=2, width=1)
-            p.ln()
-            p.text(f"x{item.quantity} - {item.product}")
-
-            p.set(bold=False, custom_size=True, height=1, width=1)
-            if item.details:
-                p.ln()
-                p.textln('   ' + item.details)
-            if item.extra:
-                p.ln()
-                p.textln('   ' + item.extra)
+def get_printer(
+        printer_type: Literal["usb", "network"],
+        printer_addr: tuple[int, int] | str
+    ):
+    if (printer_type == "usb"):
+        return init_usb_printer(printer_addr[0], printer_addr[1])
+    elif (printer_type == "network"):
+        return init_wifi_printer(printer_addr)
 
 
-    # TODO: Take Out
-
-    # TODO: Comments
-
-    p.ln()
-
-
-
-    p.cut()
-
-    return True
 
 def check_both():
-    kitchen = init_wifi_printer(wifi_printer_ip) #Printer IP Address
-    cashier = init_usb_printer(usb_id_vendor, usb_id_product)
+    kitchen_printer_type = current_app.config["KITCHEN_PRINTER_TYPE"]
+    kitchen_printer_addr = current_app.config["KITCHEN_PRINTER_ADDR"]
+
+    kitchen = get_printer(kitchen_printer_type, kitchen_printer_addr)
+
+    cashier_printer_type = current_app.config["CASHIER_PRINTER_TYPE"]
+    cashier_printer_addr = current_app.config["CASHIER_PRINTER_ADDR"]
+
+    cashier = get_printer(cashier_printer_type, cashier_printer_addr)
 
     # Check if connected
     if (kitchen == None and cashier == None):

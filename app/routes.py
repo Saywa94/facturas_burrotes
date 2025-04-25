@@ -1,7 +1,8 @@
 from flask import Blueprint
 
 from app.orders import Order, OrderItem
-from .printers import check_both, print_order,print_receipt
+from app.receipts import Receipt
+from .printers import check_both, print
 
 bp = Blueprint("main", __name__)
 
@@ -19,7 +20,10 @@ def check_printers():
 
 @bp.route('/print_receipt', methods=['POST', 'GET'])
 def print_receipt_route():
-    if not print_receipt():
+
+    receipt = Receipt(number = 28)
+
+    if not print("cashier", receipt):
         return {
             "status": "error",
             "message": "No se pudo imprimir la factura"
@@ -74,7 +78,8 @@ def print_order_route():
         beeper = 8,
         comment = "Poquito picante porfavor"
     )
-    if not print_order(order):
+
+    if not print("kitchen", order):
         return {
             "status": "error",
             "message": "No se pudo imprimir el pedido"
