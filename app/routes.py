@@ -1,4 +1,6 @@
 from flask import Blueprint
+
+from app.orders import Order, OrderItem
 from .printers import check_both, print_order,print_receipt
 
 bp = Blueprint("main", __name__)
@@ -31,7 +33,48 @@ def print_receipt_route():
 
 @bp.route('/print_order', methods=['POST', 'GET'])
 def print_order_route():
-    if not print_order():
+    order = Order(
+        number = 28,
+        customer = None,
+        date_time = "24/04/2025 - 19:30:25",
+        dine_in = [
+            OrderItem(
+                quantity=1,
+                product="Burro M - Pollo",
+                details = "Queso, Mayo, Spicy", 
+                extra = None,
+                is_cooked=True
+            ),
+            OrderItem(quantity=1, product="Bowl L - Carne, Chori", details = "Queso, Curry, Ketchup, Burguer", extra = None, is_cooked=True),
+            OrderItem(
+                quantity=2,
+                product="CocaCola 500ml",
+                details = None, 
+                extra = None,
+                is_cooked=False
+            ),
+        ],
+        take_out = [
+            OrderItem(
+                quantity=1,
+                product="Burro M - Pollo",
+                details = "Queso, Mayo, Spicy", 
+                extra = None,
+                is_cooked=True
+            ),
+            OrderItem(quantity=1, product="Bowl L - Carne, Chori", details = "Queso, Curry, Ketchup, Burguer", extra = None, is_cooked=True),
+            OrderItem(
+                quantity=2,
+                product="CocaCola 500ml",
+                details = None, 
+                extra = None,
+                is_cooked=False
+            ),
+        ],
+        beeper = 8,
+        comment = "Poquito picante porfavor"
+    )
+    if not print_order(order):
         return {
             "status": "error",
             "message": "No se pudo imprimir el pedido"

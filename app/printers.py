@@ -2,6 +2,8 @@ from escpos.printer import Network, Usb
 from escpos.exceptions import DeviceNotFoundError, USBNotFoundError
 import logging
 
+from .orders import Order
+
 # Config constants
 # Sould be in a config file or come from DB
 wifi_printer_ip = "192.168.0.217"
@@ -22,19 +24,59 @@ def print_receipt():
 
     return True
 
-def print_order():
-    kitchen = init_wifi_printer(wifi_printer_ip) #Printer IP Address
-    if (kitchen == None):
+def print_order(order: Order):
+    p = init_wifi_printer(wifi_printer_ip) #Printer IP Address
+    if (p == None):
         return False
      
-    kitchen.text("Fuck Yeah!!\n")
-    kitchen.text("This is a test\n")
-    kitchen.ln()
-    kitchen.qr("You can readme from your smartphone")
-    kitchen.cut()
-    kitchen.text("QRRRR Bitches!!!!\n")
-    kitchen.barcode('4006381333931','EAN13',64,2,'','')
-    kitchen.cut()
+    p.ln(3)
+    # Print Big Order number
+    p.set(bold=True, align="center", custom_size=True, height=2, width=2)
+    p.textln(f"{order.number}")
+    p.ln(2)
+
+    # If there is a customer name
+    if order.customer:
+        p.set(align="left", custom_size=True, height=2, width=1)
+        p.textln(f"Cliente: {order.customer}")
+
+    # Date time
+    p.set(bold=False, align="left", custom_size=True, height=1, width=1)
+    p.textln(f"{order.date_time}\n")
+
+    # Dine In
+    if order.dine_in:
+        p.set(align='center', custom_size=True, height=2, width=1)
+        p.textln('En Local')
+
+        p.set(align='center', custom_size=True, height=1, width=1)
+        p.textln(f"beeper - {order.beeper}")
+        p.textln('-' * 32)
+
+        # TODO: Filter by order.is_cooked
+        for item in order.dine_in:
+            p.set(bold=True, align="left", custom_size=True, height=2, width=1)
+            p.ln()
+            p.text(f"x{item.quantity} - {item.product}")
+
+            p.set(bold=False, custom_size=True, height=1, width=1)
+            if item.details:
+                p.ln()
+                p.textln('   ' + item.details)
+            if item.extra:
+                p.ln()
+                p.textln('   ' + item.extra)
+
+
+    # TODO: Take Out
+
+    # TODO: Comments
+
+    p.ln()
+
+
+
+    p.cut()
 
     return True
 
