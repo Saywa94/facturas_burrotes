@@ -1,5 +1,10 @@
 from unittest.mock import patch, MagicMock
 
+def test_env_vars_loaded(app):
+    assert app.config['TESTING'] is True
+    assert app.config['KITCHEN_PRINTER_TYPE']
+    assert app.config['CASHIER_PRINTER_TYPE']
+
 # Checks if both printers are connected
 def test_printers(client):
     with patch("app.printers.Usb") as MockUsb, \
