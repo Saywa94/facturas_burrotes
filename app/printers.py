@@ -28,6 +28,7 @@ def print(
         logging.error(f"Failed to connect to {printer_location} printer after retries.")
         return False
 
+    # NOTE: Add here other printer locations
     if (printer_location == "kitchen"):
         assert isinstance(data, Order)
         return print_order(printer, order = data)
@@ -39,6 +40,11 @@ def get_printer(
         printer_type: Literal["usb", "network"],
         printer_addr: tuple[int, int] | str
     ):
+    """
+    Initializes a printer by printer type
+    NOTE: Add here other printer types
+    """
+
     if (printer_type == "usb"):
         return init_usb_printer(printer_addr[0], printer_addr[1])
     elif (printer_type == "network"):

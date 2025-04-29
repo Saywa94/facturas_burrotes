@@ -26,6 +26,10 @@ class Order(BaseModel):
         return self
 
 def print_order(p: Escpos, order: Order):
+    """
+    Prints a formatted order receipt.
+    Returns True on success and False on failure.
+    """
      
     try:
         p.ln(3)
