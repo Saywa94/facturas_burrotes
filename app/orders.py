@@ -1,3 +1,4 @@
+import logging
 from typing import List, Optional
 from pydantic import BaseModel, PositiveInt, model_validator
 from escpos.escpos import Escpos
@@ -44,37 +45,56 @@ def print_order(p: Escpos, order: Order):
 
         # Dine In
         if order.dine_in:
-            p.set(align='center', custom_size=True, height=2, width=1)
-            p.textln('En Local')
+            print_order_items(p, order.dine_in, "En Local", beeper=order.beeper)
 
-            p.set(align='center', custom_size=True, height=1, width=1)
-            p.textln(f"beeper - {order.beeper}")
-            p.textln('-' * 32)
+        # Take Out
+        if order.take_out:
+            print_order_items(p, order.take_out, "Para Llevar")
 
-            # TODO: Filter by order.is_cooked
-            for item in order.dine_in:
-                p.set(bold=True, align="left", custom_size=True, height=2, width=1)
-                p.ln()
-                p.text(f"x{item.quantity} - {item.product}")
-
-                p.set(bold=False, custom_size=True, height=1, width=1)
-                if item.details:
-                    p.ln()
-                    p.textln('   ' + item.details)
-                if item.extra:
-                    p.ln()
-                    p.textln('   ' + item.extra)
-
-
-        # TODO: Take Out
-
-        # TODO: Comments
+        # Comments
+        if order.comment:
+            p.ln()
+            p.set(align="left", bold=True)
+            p.textln("Comentario:")
+            p.set(bold=False)
+            p.textln(order.comment)
 
         p.ln()
-
 
         p.cut()
 
         return True
-    except:
+    except Exception as e:
+        logging.exception(f"Error printing order: {e}")
         return False
+
+def print_order_items(p: Escpos, items: List[OrderItem], header: str, beeper: Optional[int] = None):
+    p.set(align='center', custom_size=True, height=2, width=1)
+    p.textln(header)
+
+    if beeper is not None:
+        p.set(align='center', custom_size=True, height=1, width=1)
+        p.textln(f"beeper - {beeper}")
+
+    p.textln('-' * 32)
+
+    sorted_items = sorted(items, key=lambda x: not x.is_cooked)
+    is_cooked = sorted_items[0].is_cooked
+
+    for item in sorted_items:
+        if item.is_cooked != is_cooked:
+            p.textln('*' * 6)
+            is_cooked = item.is_cooked
+
+        p.set(bold=True, align="left", custom_size=True, height=2, width=1)
+        p.ln()
+        p.text(f"x{item.quantity} - {item.product}")
+
+        p.set(bold=False, custom_size=True, height=1, width=1)
+        if item.details:
+            p.ln()
+            p.textln('   ' + item.details)
+        if item.extra:
+            p.ln()
+            p.textln('   ' + item.extra)
+
