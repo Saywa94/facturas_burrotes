@@ -2,6 +2,7 @@ from flask import Blueprint
 
 from app.orders import Order, OrderItem
 from app.receipts import Receipt
+
 from .printers import check_both, print
 
 bp = Blueprint("main", __name__)

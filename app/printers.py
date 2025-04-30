@@ -75,11 +75,11 @@ def check_both():
     cashier = get_printer(cashier_printer_type, cashier_printer_addr)
 
     # Check if connected
-    if (kitchen == None and cashier == None):
+    if (kitchen is None and cashier is None):
         return False, "both"
-    if (kitchen == None):
+    if (kitchen is None):
         return False, "kitchen"
-    if (cashier == None):
+    if (cashier is None):
         return False, "cashier"
 
     # Check if online
