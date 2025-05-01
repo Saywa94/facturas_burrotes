@@ -1,7 +1,7 @@
 from flask import Blueprint
 
 from app.orders import Order, OrderItem
-from app.receipts import Receipt
+from app.receipts import Receipt, ReceiptItem
 
 from .printers import check_both, print
 
@@ -22,7 +22,37 @@ def check_printers():
 @bp.route('/print_receipt', methods=['POST', 'GET'])
 def print_receipt_route():
 
-    receipt = Receipt(number = 28)
+    receipt = Receipt(
+        number = 28,
+        razon_social = "Fusi Burrito",
+        numero_sucursal = 1,
+        punto_venta = 1,
+        direccion_sucursal = "Av. Libertad 123",
+        municipio = "La Paz",
+        nit = 123456789,
+        number_factura = 1,
+        codigo_autorizacion = "123456789",
+        fecha_emision = "24/04/2025",
+        cliente = "Fusi Burrito",
+        nit_cliente = 123456789,
+        items = [
+            ReceiptItem(
+                cantidad=1,
+                descripcion="Burro M - Pollo",
+                precio_unitario=25,
+                subtotal=25
+            ),
+        ],
+        subtotal = 25,
+        descuento = 0,
+        total = 25,
+        total_iva = 0,
+        total_escrito = "veinticinco bolivianos",
+        qr_code = "QR_CODE",
+        leyenda_1 = "Leyenda 1",
+        leyenda_2 = "Leyenda 2",
+        leyenda_3 = "Leyenda 3"
+    )
 
     if not print("cashier", receipt):
         return {

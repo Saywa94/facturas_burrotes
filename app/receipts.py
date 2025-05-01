@@ -1,9 +1,11 @@
-from escpos.printer import Usb, Network
+from escpos.escpos import Escpos
 from pydantic import BaseModel
 
 import logging
 
-class ReceiptItems(BaseModel):
+from app.utils import format_table_line
+
+class ReceiptItem(BaseModel):
     cantidad: int
     descripcion: str
     precio_unitario: int
@@ -25,7 +27,7 @@ class Receipt(BaseModel):
     cliente: str
     nit_cliente: int
 
-    items: list[ReceiptItems]
+    items: list[ReceiptItem]
 
     subtotal: int
     descuento: int
@@ -44,7 +46,7 @@ NORMAL_BOLD = {"bold": True, "align": "center", "custom_size": True, "height": 2
 SMALL = {"bold": False, "align": "center", "custom_size": True, "height": 1, "width": 1}
 SMALL_BOLD = {"bold": True, "align": "center", "custom_size": True, "height": 1, "width": 1}
 
-def print_receipt(p: Usb | Network, receipt: Receipt):
+def print_receipt(p: Escpos, receipt: Receipt):
     try:
         p.ln(3)
 
@@ -75,12 +77,16 @@ def print_receipt(p: Usb | Network, receipt: Receipt):
         p.textln("DETALLE")
 
         p.set(**SMALL_BOLD)
-        p.software_columns(
-                ["CANT", "DESCRIPCION", "P/U", "SUBTOTAL"],
-                [4, 16, 4, 8],
-                ["left", "center", "center", "right"],
-                )
+        p.textln(format_table_line("CANT", "DESCRIPCION", "P/U", "SUBTOTAL", is_header=True))
 
+        p.set(**SMALL)
+
+        for item in receipt.items:
+            p.textln(format_table_line(
+                str(item.cantidad), item.descripcion, str(item.precio_unitario), str(item.subtotal)
+            ))
+
+        p.textln('-' * 38)
 
 
 
