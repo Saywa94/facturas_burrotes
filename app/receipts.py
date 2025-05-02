@@ -4,6 +4,7 @@ from pydantic import BaseModel
 import logging
 
 from app.utils import format_table_line, format_totals_line
+from app.assets import LOGO_IMAGE
 
 class ReceiptItem(BaseModel):
     cantidad: int
@@ -50,7 +51,7 @@ def print_receipt(p: Escpos, receipt: Receipt):
     try:
 
         p.image(
-                img_source="static/logo.bmp",
+                img_source=LOGO_IMAGE,
                 center=True,
             )
         p.ln()
