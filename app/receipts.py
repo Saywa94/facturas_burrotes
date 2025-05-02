@@ -3,7 +3,7 @@ from pydantic import BaseModel
 
 import logging
 
-from app.utils import format_table_line
+from app.utils import format_table_line, format_totals_line
 
 class ReceiptItem(BaseModel):
     cantidad: int
@@ -40,15 +40,20 @@ class Receipt(BaseModel):
     leyenda_2: str
     leyenda_3: str
 
-NORMAL = {"bold": False, "align": "center", "custom_size": True, "height": 2, "width": 1}
-NORMAL_LEFT = {"bold": False, "align": "left", "custom_size": True, "height": 2, "width": 1}
-NORMAL_BOLD = {"bold": True, "align": "center", "custom_size": True, "height": 2, "width": 1}
-SMALL = {"bold": False, "align": "center", "custom_size": True, "height": 1, "width": 1}
-SMALL_BOLD = {"bold": True, "align": "center", "custom_size": True, "height": 1, "width": 1}
+NORMAL = {"font": "a", "bold": False, "align": "center", "custom_size": True, "height": 1, "width": 1}
+NORMAL_BOLD = {"font": "a", "bold": True, "align": "center", "custom_size": True, "height": 1, "width": 1}
+NORMAL_LEFT = {"font": "a", "bold": False, "align": "left", "custom_size": True, "height": 1, "width": 1}
+NORMAL_BOLD_LEFT = {"font": "a", "bold": True, "align": "left", "custom_size": True, "height": 1, "width": 1}
+SMALL_CENTER = {"font": "b", "bold": False, "align": "center", "custom_size": True, "height": 1, "width": 1} 
 
 def print_receipt(p: Escpos, receipt: Receipt):
     try:
-        p.ln(3)
+
+        p.image(
+                img_source="static/logo.bmp",
+                center=True,
+            )
+        p.ln()
 
         p.set(**NORMAL_BOLD)
         p.textln("FACTURA CON DERECHO A CREDITO FISCAL")
@@ -68,29 +73,60 @@ def print_receipt(p: Escpos, receipt: Receipt):
         p.textln('-' * 38)
 
         p.set(**NORMAL_LEFT)
-        p.textln(f"CLIENTE: {receipt.cliente}")
-        p.textln(f"NIT/CI/CEX: {receipt.nit_cliente}")
-        p.textln(f"FECHA DE EMISIÓN: {receipt.fecha_emision}")
+        p.textln(f" CLIENTE: {receipt.cliente}")
+        p.textln(f" NIT/CI/CEX: {receipt.nit_cliente}")
+        p.textln(f" FECHA DE EMISIÓN: {receipt.fecha_emision}")
+
+        p.set(**NORMAL)
         p.textln('-' * 38)
 
         p.set(**NORMAL_BOLD)
         p.textln("DETALLE")
 
-        p.set(**SMALL_BOLD)
+        p.set(**NORMAL_BOLD)
         p.textln(format_table_line("CANT", "DESCRIPCION", "P/U", "SUBTOTAL", is_header=True))
 
-        p.set(**SMALL)
+        p.set(**NORMAL)
 
         for item in receipt.items:
             p.textln(format_table_line(
-                str(item.cantidad), item.descripcion, str(item.precio_unitario), str(item.subtotal)
+                item.cantidad, item.descripcion, item.precio_unitario, item.subtotal
             ))
 
         p.textln('-' * 38)
+        p.textln(format_totals_line("SUBTOTAL:", receipt.subtotal))
+        p.textln(format_totals_line("DESCUENTO:", receipt.descuento))
+        p.textln(format_totals_line("TOTAL A PAGAR:", receipt.total))
+        p.textln(format_totals_line("IMPORTE BASE A CREDITO FISCAL:", receipt.total))
 
+        p.set(**NORMAL_BOLD_LEFT)
+        p.textln(f" SON: {receipt.total_escrito}")
 
+        p.set(**NORMAL)
+        p.textln('-' * 38)
 
-        p.ln
+        p.qr(
+            content=receipt.qr_code,
+            size=5,
+            center=True,
+        )
+
+        p.set(**SMALL_CENTER)
+        p.block_text(txt=receipt.leyenda_1, font='b')
+        p.ln()
+        p.block_text(txt=receipt.leyenda_2, font='b')
+        p.ln()
+        p.block_text(txt=receipt.leyenda_3, font='b')
+
+        p.ln()
+
+        p.set(**NORMAL)
+
+        p.textln('-' * 38)
+        p.textln(f"Pedido: {receipt.number}")
+        p.textln('-' * 38)
+        p.ln()
+
 
         p.cut()
 

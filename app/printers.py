@@ -9,6 +9,36 @@ from flask import current_app
 from .orders import Order, print_order
 from .receipts import Receipt, print_receipt
 
+def test_print(
+        printer_location: Literal["kitchen", "cashier"],
+        ):
+
+    printer_type = current_app.config[f"{printer_location.upper()}_PRINTER_TYPE"]
+    printer_addr = current_app.config[f"{printer_location.upper()}_PRINTER_ADDR"]
+
+    p = retry_get_printer(printer_type, printer_addr)
+    if p is None:
+        logging.error(f"Failed to connect to {printer_location} printer after retries.")
+        return False
+
+    # TEST AREA
+
+    p.set(bold=False, align='center', custom_size=True, height=1, width=1)
+
+    p.image(
+            img_source="static/logo.bmp",
+            center=True,
+        )
+
+
+    p.ln(2)
+
+    p.cut()
+
+
+    return None
+
+
 # General printer function
 @overload
 def print(printer_location: Literal["kitchen"], data: Order) -> bool: ...
