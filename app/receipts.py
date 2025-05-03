@@ -3,6 +3,8 @@ from pydantic import BaseModel
 
 import logging
 
+from pydantic_core import ValidationError
+
 from app.utils import format_table_line, format_totals_line
 from app.assets import LOGO_IMAGE
 
@@ -40,6 +42,14 @@ class Receipt(BaseModel):
     leyenda_1: str
     leyenda_2: str
     leyenda_3: str
+
+def validate_receipt(data) -> Receipt | None:
+    try:
+        return Receipt.model_validate(data)
+    except ValidationError as e:
+        logging.error(e)
+        return None
+
 
 NORMAL = {"font": "a", "bold": False, "align": "center", "custom_size": True, "height": 1, "width": 1}
 NORMAL_BOLD = {"font": "a", "bold": True, "align": "center", "custom_size": True, "height": 1, "width": 1}

@@ -1,7 +1,7 @@
-from flask import Blueprint
+from flask import Blueprint, request
 
 from app.orders import Order, OrderItem
-from app.receipts import Receipt, ReceiptItem
+from app.receipts import validate_receipt
 
 from .printers import check_both, print, test_print
 
@@ -29,49 +29,12 @@ def check_printers():
 @bp.route('/print_receipt', methods=['POST', 'GET'])
 def print_receipt_route():
 
-    receipt = Receipt(
-        number = 28,
-        razon_social = "Grupo GFV S.R.L.",
-        numero_sucursal = 1,
-        punto_venta = 1,
-        direccion_sucursal = "3, Avenida Costanera, zona Irpavi",
-        municipio = "La Paz",
-        nit = 620466028,
-        number_factura = 1,
-        codigo_autorizacion = "123456789",
-        fecha_emision = "01/05/2025",
-        cliente = "Giuseppe Fusi",
-        nit_cliente = 68770242,
-        items = [
-            ReceiptItem(
-                cantidad=2,
-                descripcion="Burro M Pollo",
-                precio_unitario=25,
-                subtotal=50
-            ),
-            ReceiptItem(
-                cantidad=1,
-                descripcion="Bowl XL Pollo Carne Chorizo",
-                precio_unitario=45,
-                subtotal=45
-            ),
-            ReceiptItem(
-                cantidad=3,
-                descripcion="CocaCola 500ml",
-                precio_unitario=10,
-                subtotal=30
-            ),
-        ],
-        subtotal = 125,
-        descuento = 0,
-        total = 125,
-        total_iva = 125,
-        total_escrito = "ciento veinticinco bolivianos",
-        qr_code = "https://siat.impuestos.gob.bo/consulta/QR?nit=3423421013&cuf=EA3D6EBF506FCFD1FC42E2F1997F1333117CD97DE562A03052E349E74&numero=19&t=1",
-        leyenda_1 = "ESTA FACTURA CONTRIBUYE AL DESARROLLO DEL PAÍS, EL USO ILÍCITO SERÁ SANCIONADO PENALMENTE DE ACUERDO A LEY",
-        leyenda_2 = "Ley N° 453: El proveedor deberá entregar el producto en las modalidades y términos ofertados o convenidos.",
-        leyenda_3 = '"Este documento es la Representación Gráfica de un Documento Fiscal Digital emitido en una modalidad de facturación en línea"'
-    )
+    receipt = validate_receipt(request.get_json())
+    if receipt is None:
+        return {
+            "status": "error",
+            "message": "Datos de factura incorrectos"
+        }
 
     if not print("cashier", receipt):
         return {
