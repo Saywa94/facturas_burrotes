@@ -15,7 +15,7 @@ def hello_world():
 @bp.route('/test', methods=['POST', 'GET'])
 def test():
 
-    test_print("cashier")
+    test_print("kitchen")
 
     return {"status": "ok"}
 

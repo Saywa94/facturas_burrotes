@@ -23,15 +23,15 @@ def test_print(
 
     # TEST AREA
 
-    p.set(bold=False, align='center', custom_size=True, height=1, width=1)
+    p.set(bold=True, align='center', custom_size=True, height=2, width=2)
 
-    p.image(
-            img_source="static/logo.bmp",
-            center=True,
-        )
+    p.ln()
 
+    p.textln("620466028")
+    p.ln()
+    p.textln("GRUPO GFV S.R.L.")
 
-    p.ln(2)
+    p.ln()
 
     p.cut()
 
