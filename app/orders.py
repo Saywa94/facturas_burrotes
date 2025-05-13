@@ -32,7 +32,7 @@ def print_order(p: Escpos, order: Order):
     """
      
     try:
-        p.ln(3)
+        p.ln(4)
         # Print Big Order number
         p.set(bold=True, align="center", custom_size=True, height=2, width=2)
         p.textln(f"{order.number}")
@@ -49,15 +49,17 @@ def print_order(p: Escpos, order: Order):
 
         # Dine In
         if order.dine_in:
+            p.ln()
             print_order_items(p, order.dine_in, "En Local", beeper=order.beeper)
 
         # Take Out
         if order.take_out:
+            p.ln()
             print_order_items(p, order.take_out, "Para Llevar")
 
         # Comments
         if order.comment:
-            p.ln()
+            p.ln(2)
             p.set(align="left", bold=True)
             p.textln("Comentario:")
             p.set(bold=False)
@@ -73,7 +75,7 @@ def print_order(p: Escpos, order: Order):
         return False
 
 def print_order_items(p: Escpos, items: List[OrderItem], header: str, beeper: Optional[int] = None):
-    p.set(align='center', custom_size=True, height=2, width=1)
+    p.set(bold=False, align='center', custom_size=True, height=2, width=1)
     p.textln(header)
 
     if beeper is not None:
@@ -87,6 +89,8 @@ def print_order_items(p: Escpos, items: List[OrderItem], header: str, beeper: Op
 
     for item in sorted_items:
         if item.is_cooked != is_cooked:
+            p.ln()
+            p.set(align='center', bold=False, custom_size=True, height=1, width=1)
             p.textln('*' * 6)
             is_cooked = item.is_cooked
 
@@ -95,10 +99,10 @@ def print_order_items(p: Escpos, items: List[OrderItem], header: str, beeper: Op
         p.text(f"x{item.quantity} - {item.product}")
 
         p.set(bold=False, custom_size=True, height=1, width=1)
+        p.ln()
+
         if item.details:
-            p.ln()
             p.textln('   ' + item.details)
         if item.extra:
-            p.ln()
             p.textln('   ' + item.extra)
 
