@@ -3,6 +3,7 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
+
 def parse_printer(value):
     """
     Parses a printer string like 'usb:0x1234:0x5678' or 'network:192.168.1.100'
@@ -31,5 +32,9 @@ def parse_printer(value):
 
 
 class BaseConfig:
-    KITCHEN_PRINTER_TYPE, KITCHEN_PRINTER_ADDR = parse_printer(os.getenv("KITCHEN_PRINTER"))
-    CASHIER_PRINTER_TYPE, CASHIER_PRINTER_ADDR = parse_printer(os.getenv("CASHIER_PRINTER"))
+    KITCHEN_PRINTER_TYPE, KITCHEN_PRINTER_ADDR = parse_printer(
+        os.getenv("KITCHEN_PRINTER")
+    )
+    CASHIER_PRINTER_TYPE, CASHIER_PRINTER_ADDR = parse_printer(
+        os.getenv("CASHIER_PRINTER")
+    )

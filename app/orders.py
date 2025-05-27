@@ -3,12 +3,14 @@ from typing import List, Optional
 from pydantic import BaseModel, PositiveInt, model_validator
 from escpos.escpos import Escpos
 
+
 class OrderItem(BaseModel):
     quantity: PositiveInt
     product: str
     details: Optional[str]
     extra: Optional[str]
     is_cooked: bool
+
 
 class Order(BaseModel):
     number: int
@@ -20,17 +22,18 @@ class Order(BaseModel):
     comment: Optional[str]
 
     @model_validator(mode="after")
-    def validate_beeper_for_dine_in(self) -> 'Order':
+    def validate_beeper_for_dine_in(self) -> "Order":
         if self.dine_in and self.beeper is None:
             raise ValueError("Beeper is required when dine_in is not empty.")
         return self
+
 
 def print_order(p: Escpos, order: Order):
     """
     Prints a formatted order receipt.
     Returns True on success and False on failure.
     """
-     
+
     try:
         p.ln(4)
         # Print Big Order number
@@ -74,15 +77,18 @@ def print_order(p: Escpos, order: Order):
         logging.exception(f"Error printing order: {e}")
         return False
 
-def print_order_items(p: Escpos, items: List[OrderItem], header: str, beeper: Optional[int] = None):
-    p.set(bold=False, align='center', custom_size=True, height=2, width=1)
+
+def print_order_items(
+    p: Escpos, items: List[OrderItem], header: str, beeper: Optional[int] = None
+):
+    p.set(bold=False, align="center", custom_size=True, height=2, width=1)
     p.textln(header)
 
     if beeper is not None:
-        p.set(align='center', custom_size=True, height=1, width=1)
+        p.set(align="center", custom_size=True, height=1, width=1)
         p.textln(f"beeper - {beeper}")
 
-    p.textln('-' * 32)
+    p.textln("-" * 32)
 
     sorted_items = sorted(items, key=lambda x: not x.is_cooked)
     is_cooked = sorted_items[0].is_cooked
@@ -90,8 +96,8 @@ def print_order_items(p: Escpos, items: List[OrderItem], header: str, beeper: Op
     for item in sorted_items:
         if item.is_cooked != is_cooked:
             p.ln()
-            p.set(align='center', bold=False, custom_size=True, height=1, width=1)
-            p.textln('*' * 6)
+            p.set(align="center", bold=False, custom_size=True, height=1, width=1)
+            p.textln("*" * 6)
             is_cooked = item.is_cooked
 
         p.set(bold=True, align="left", custom_size=True, height=2, width=1)
@@ -102,7 +108,6 @@ def print_order_items(p: Escpos, items: List[OrderItem], header: str, beeper: Op
         p.ln()
 
         if item.details:
-            p.textln('   ' + item.details)
+            p.textln("   " + item.details)
         if item.extra:
-            p.textln('   ' + item.extra)
-
+            p.textln("   " + item.extra)
