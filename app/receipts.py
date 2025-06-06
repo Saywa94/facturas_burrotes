@@ -118,7 +118,7 @@ def print_receipt(p: Escpos, receipt: Receipt):
         p.set(**NORMAL)
         p.textln(f"NIT: {receipt.nit}")
         p.textln(f"Factura No. {receipt.number_factura}")
-        p.textln(f"CÓD. AUTORIZACIÓN: {receipt.cuf}")
+        p.textln(f"CUF: {receipt.cuf}")
         p.textln("-" * 38)
 
         p.set(**NORMAL_LEFT)
