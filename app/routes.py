@@ -28,7 +28,7 @@ def check_printers():
     return {"status": status, "offline_printer": offline_printer}
 
 
-@bp.route("/print_receipt", methods=["POST", "GET"])
+@bp.route("/print_receipt", methods=["POST"])
 def print_receipt_route():
     receipt = validate_receipt(request.get_json())
     if receipt is None:
@@ -41,7 +41,7 @@ def print_receipt_route():
     return res
 
 
-@bp.route("/print_order", methods=["POST", "GET"])
+@bp.route("/print_order", methods=["POST"])
 def print_order_route():
     order = order2
 
