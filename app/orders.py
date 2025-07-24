@@ -1,4 +1,5 @@
 import logging
+from pydantic_core import ValidationError
 from typing import List, Optional
 from pydantic import BaseModel, PositiveInt, model_validator
 from escpos.escpos import Escpos
@@ -26,6 +27,14 @@ class Order(BaseModel):
         if self.dine_in and self.beeper is None:
             raise ValueError("Beeper is required when dine_in is not empty.")
         return self
+
+
+def validate_order(data) -> Order | None:
+    try:
+        return Order.model_validate(data)
+    except ValidationError as e:
+        logging.error(e)
+        return None
 
 
 def print_order(p: Escpos, order: Order):

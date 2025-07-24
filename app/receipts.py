@@ -109,8 +109,12 @@ def print_receipt(p: Escpos, receipt: Receipt):
 
         p.set(**NORMAL)
         p.textln(receipt.razon_social)
-        p.textln(f"Sucursal No. {receipt.numero_sucursal}")
-        p.textln(f"Punto de Venta No. {receipt.punto_venta}")
+        if receipt.numero_sucursal == 0:
+            p.textln("Casa Matriz")
+        else:
+            p.textln(f"Sucursal No. {receipt.numero_sucursal}")
+        if receipt.punto_venta != 0:
+            p.textln(f"Punto de Venta No. {receipt.punto_venta}")
         p.textln(receipt.direccion_sucursal)
         p.textln(f"{receipt.municipio} - Bolivia")
         p.textln("-" * 38)

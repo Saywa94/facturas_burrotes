@@ -1,9 +1,10 @@
 from flask import Blueprint, request
 
+from app.orders import validate_order
+
 from .receipts import validate_receipt
 from .printers import check_both, print, test_print
 
-from data.orders import order2
 
 bp = Blueprint("main", __name__)
 
@@ -43,7 +44,9 @@ def print_receipt_route():
 
 @bp.route("/print_order", methods=["POST"])
 def print_order_route():
-    order = order2
+    order = validate_order(request.get_json())
+    if order is None:
+        return {"status": "error", "message": "Datos de pedido incorrectos"}
 
     if not print("kitchen", order):
         return {"status": "error", "message": "No se pudo imprimir el pedido"}
