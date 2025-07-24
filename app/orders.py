@@ -77,6 +77,9 @@ def print_order(p: Escpos, order: Order):
         logging.exception(f"Error printing order: {e}")
         return False
 
+    finally:
+        p.close()
+
 
 def print_order_items(
     p: Escpos, items: List[OrderItem], header: str, beeper: Optional[int] = None

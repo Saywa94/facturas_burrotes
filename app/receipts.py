@@ -187,3 +187,5 @@ def print_receipt(p: Escpos, receipt: Receipt):
     except Exception as e:
         logging.exception(f"Error printing order: {e}")
         return False
+    finally:
+        p.close()

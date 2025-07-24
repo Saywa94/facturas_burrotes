@@ -35,6 +35,8 @@ def test_print(
 
     p.cut()
 
+    p.close()
+
     return None
 
 
