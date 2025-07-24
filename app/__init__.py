@@ -1,4 +1,5 @@
 from flask import Flask
+from flask_cors import CORS
 from .config import BaseConfig
 
 
@@ -9,5 +10,16 @@ def create_app():
     from .routes import bp as routes_bp
 
     app.register_blueprint(routes_bp)
+
+    CORS(
+        app,
+        resources={
+            r"/*": {
+                "origins": [
+                    "http://localhost:5173",
+                ]
+            }
+        },
+    )
 
     return app
