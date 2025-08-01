@@ -45,6 +45,8 @@ class Receipt(BaseModel):
     leyenda_2: str
     leyenda_3: str
 
+    recibo: bool
+
 
 def validate_receipt(data) -> Receipt | None:
     try:
@@ -105,7 +107,10 @@ def print_receipt(p: Escpos, receipt: Receipt):
         p.ln()
 
         p.set(**NORMAL_BOLD)
-        p.textln("FACTURA CON DERECHO A CREDITO FISCAL")
+        if not receipt.recibo:
+            p.textln("FACTURA CON DERECHO A CREDITO FISCAL")
+        else:
+            p.textln("RECIBO")
 
         p.set(**NORMAL)
         p.textln(receipt.razon_social)
@@ -121,8 +126,11 @@ def print_receipt(p: Escpos, receipt: Receipt):
 
         p.set(**NORMAL)
         p.textln(f"NIT: {receipt.nit}")
-        p.textln(f"Factura No. {receipt.number_factura}")
-        p.textln(f"CUF: {receipt.cuf}")
+        if not receipt.recibo:
+            p.textln(f"Factura No. {receipt.number_factura}")
+            p.textln(f"CUF: {receipt.cuf}")
+        else:
+            p.textln(f"Recibo No. {receipt.number_factura}")
         p.textln("-" * 38)
 
         p.set(**NORMAL_LEFT)
@@ -168,12 +176,13 @@ def print_receipt(p: Escpos, receipt: Receipt):
             center=True,
         )
 
-        p.set(**SMALL_CENTER)
-        p.block_text(txt=receipt.leyenda_1, font="b")
-        p.ln()
-        p.block_text(txt=receipt.leyenda_2, font="b")
-        p.ln()
-        p.block_text(txt=receipt.leyenda_3, font="b")
+        if not receipt.recibo:
+            p.set(**SMALL_CENTER)
+            p.block_text(txt=receipt.leyenda_1, font="b")
+            p.ln()
+            p.block_text(txt=receipt.leyenda_2, font="b")
+            p.ln()
+            p.block_text(txt=receipt.leyenda_3, font="b")
 
         p.ln()
 
