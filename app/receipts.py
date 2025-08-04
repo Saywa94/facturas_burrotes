@@ -122,6 +122,7 @@ def print_receipt(p: Escpos, receipt: Receipt):
             p.textln(f"Punto de Venta No. {receipt.punto_venta}")
         p.textln(receipt.direccion_sucursal)
         p.textln(f"{receipt.municipio} - Bolivia")
+        p.textln("Pedidos al: 62116969")
         p.textln("-" * 38)
 
         p.set(**NORMAL)
