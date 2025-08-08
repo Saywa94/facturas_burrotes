@@ -13,6 +13,10 @@ from .receipts import Receipt, print_receipt
 def test_print(
     printer_location: Literal["kitchen", "cashier"],
 ):
+    """
+    Tests if the printer is working correctly
+    Returns True on success and False on failure
+    """
     printer_type = current_app.config[f"{printer_location.upper()}_PRINTER_TYPE"]
     printer_addr = current_app.config[f"{printer_location.upper()}_PRINTER_ADDR"]
 
@@ -21,23 +25,26 @@ def test_print(
         logging.error(f"Failed to connect to {printer_location} printer after retries.")
         return False
 
-    # TEST AREA
+    try:
+        # TEST AREA
+        p.set(bold=True, align="center", custom_size=True, height=1, width=1)
 
-    p.set(bold=True, align="center", custom_size=True, height=2, width=2)
+        p.ln(3)
+        p.textln(f"{printer_location} printer")
+        p.ln()
+        p.ln()
+        p.textln("Printer is working correctly")
 
-    p.ln()
+        p.ln()
 
-    p.textln("620466028")
-    p.ln()
-    p.textln("GRUPO GFV S.R.L.")
+        p.cut()
+    except Exception as e:
+        logging.error(f"Printer test failed: {e}")
+        return False
+    finally:
+        p.close()
 
-    p.ln()
-
-    p.cut()
-
-    p.close()
-
-    return None
+    return True
 
 
 # General printer function

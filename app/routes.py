@@ -14,11 +14,15 @@ def hello_world():
     return "Hello, Fusi!"
 
 
-@bp.route("/test", methods=["POST", "GET"])
+@bp.route("/test_printers", methods=["POST", "GET"])
 def test():
-    test_print("kitchen")
+    if not test_print("cashier"):
+        return {"status": "error", "message": "Cashier printer not working"}
+    if not test_print("kitchen"):
+        return {"status": "error", "message": "Kitchen printer not working"}
 
-    return {"status": "ok"}
+    res = {"status": "ok", "message": "Printers working correctly"}
+    return res
 
 
 @bp.route("/check_printers", methods=["GET"])
