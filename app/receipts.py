@@ -171,13 +171,13 @@ def print_receipt(p: Escpos, receipt: Receipt):
         p.set(**NORMAL)
         p.textln("-" * 38)
 
-        p.qr(
-            content=receipt.qr_code,
-            size=5,
-            center=True,
-        )
-
         if not receipt.recibo:
+            p.qr(
+                content=receipt.qr_code,
+                size=5,
+                center=True,
+            )
+
             p.set(**SMALL_CENTER)
             p.block_text(txt=receipt.leyenda_1, font="b")
             p.ln()
