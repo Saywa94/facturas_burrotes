@@ -17,6 +17,8 @@ def create_app():
             r"/*": {
                 "origins": [
                     "http://localhost:5173",
+                    "https://burrotesbolivia.org",
+                    "https://www.burrotesbolivia.org",
                 ]
             }
         },
