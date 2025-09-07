@@ -1,3 +1,6 @@
+from decimal import Decimal
+
+
 def format_table_line(
     qty: int | str,
     desc: str,
@@ -22,7 +25,7 @@ def format_table_line(
         )
 
 
-def format_totals_line(des: str, total: float, widths=(37, 8)):
+def format_totals_line(des: str, total: Decimal, widths=(37, 8)):
     """
     Formats a line of a table of 2 columns
     The total width of the paper is 45 chars

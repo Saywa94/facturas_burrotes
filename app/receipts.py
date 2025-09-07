@@ -1,3 +1,4 @@
+from decimal import Decimal
 from escpos.escpos import Escpos
 from pydantic import BaseModel
 
@@ -34,10 +35,10 @@ class Receipt(BaseModel):
 
     items: list[ReceiptItem]
 
-    subtotal: int
-    descuento: int
-    total: int
-    total_iva: int
+    subtotal: Decimal
+    descuento: Decimal
+    total: Decimal
+    total_iva: Decimal
     total_escrito: str
 
     qr_code: str
