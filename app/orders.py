@@ -18,6 +18,7 @@ class Order(BaseModel):
     customer: Optional[str]
     date_time: str
     dine_in: List[OrderItem]
+    delivery: bool
     take_out: List[OrderItem]
     beeper: Optional[int]
     comment: Optional[str]
@@ -67,7 +68,7 @@ def print_order(p: Escpos, order: Order):
         # Take Out
         if order.take_out:
             p.ln()
-            print_order_items(p, order.take_out, "Para Llevar")
+            print_order_items(p, order.take_out, "Para Llevar", delivery=order.delivery)
 
         # Comments
         if order.comment:
@@ -91,10 +92,14 @@ def print_order(p: Escpos, order: Order):
 
 
 def print_order_items(
-    p: Escpos, items: List[OrderItem], header: str, beeper: Optional[int] = None
+    p: Escpos,
+    items: List[OrderItem],
+    header: str,
+    beeper: Optional[int] = None,
+    delivery: Optional[bool] = False,
 ):
     p.set(bold=False, align="center", custom_size=True, height=2, width=1)
-    p.textln(header)
+    p.textln(f"{header}{' - Pedidos Ya' if delivery else ''}")
 
     if beeper is not None:
         p.set(align="center", custom_size=True, height=1, width=1)
