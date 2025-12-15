@@ -119,7 +119,10 @@ def print_order_items(
 
         p.set(bold=True, align="left", custom_size=True, height=2, width=1)
         p.ln()
-        p.text(f"x{item.quantity} - {item.product}")
+
+        # INFO: This is a temporary fix
+        item_name = item.product.replace("Bowl", "Plato")
+        p.text(f"x{item.quantity} - {item_name}")
 
         p.set(bold=False, custom_size=True, height=1, width=1)
         p.ln()
