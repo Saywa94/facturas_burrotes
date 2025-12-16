@@ -101,6 +101,12 @@ SMALL_CENTER = {
 
 def print_receipt(p: Escpos, receipt: Receipt):
     try:
+        # Print order number (first 2 digits)
+        p.ln(1)
+        p.set(bold=True, align="center", custom_size=True, height=2, width=2)
+        p.textln(f"{receipt.number % 100:02d}")
+        p.ln(2)
+
         p.image(
             img_source=LOGO_IMAGE,
             center=True,
@@ -186,13 +192,6 @@ def print_receipt(p: Escpos, receipt: Receipt):
             p.ln()
             p.block_text(txt=receipt.leyenda_3, font="b")
 
-        p.ln()
-
-        p.set(**NORMAL)
-
-        p.textln("-" * 38)
-        p.textln(f"Pedido: {receipt.number}")
-        p.textln("-" * 38)
         p.ln()
 
         p.cut()

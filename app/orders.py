@@ -46,9 +46,9 @@ def print_order(p: Escpos, order: Order):
 
     try:
         p.ln(4)
-        # Print Big Order number
+        # Print Big Order number (first 2 digits)
         p.set(bold=True, align="center", custom_size=True, height=2, width=2)
-        p.textln(f"{order.number}")
+        p.textln(f"{order.number % 100:02d}")
         p.ln(2)
 
         # If there is a customer name
