@@ -4,6 +4,8 @@ from pydantic import BaseModel
 
 import logging
 
+from typing import Optional
+
 from pydantic_core import ValidationError
 
 from app.utils import format_table_line, format_totals_line
@@ -19,6 +21,7 @@ class ReceiptItem(BaseModel):
 
 class Receipt(BaseModel):
     number: int
+    delivery_number: Optional[str]
     razon_social: str
     numero_sucursal: int
     punto_venta: int
@@ -105,6 +108,9 @@ def print_receipt(p: Escpos, receipt: Receipt):
         p.ln(1)
         p.set(bold=True, align="center", custom_size=True, height=2, width=2)
         p.textln(f"{receipt.number % 100:02d}")
+        if receipt.delivery_number:
+            p.ln(1)
+            p.textln(f"PedidosYa: # {receipt.delivery_number}")
         p.ln(2)
 
         p.image(
