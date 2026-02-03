@@ -87,14 +87,14 @@ def print_labels_route():
         return {"status": "error", "message": "Datos de etiquetas incorrectos"}
     # labels_req = LabelsRequest(
     #     labels=[
-    #         LabelRequest(
+    #         Label(
     #             product="Burro M",
     #             order_num=66,
     #             proteins="Pollo",
     #             sauces="Italiana, Spicy",
     #             sin_queso=False,
     #         ),
-    #         LabelRequest(
+    #         Label(
     #             product="Bowl XL",
     #             order_num=66,
     #             proteins="Pollo, Res, Chorizo",

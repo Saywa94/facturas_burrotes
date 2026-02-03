@@ -6,7 +6,7 @@ from pydantic import BaseModel, PositiveInt
 from pydantic_core import ValidationError
 
 
-class LabelRequest(BaseModel):
+class Label(BaseModel):
     product: str
     order_num: PositiveInt
     proteins: str
@@ -14,16 +14,16 @@ class LabelRequest(BaseModel):
     sin_queso: bool
 
 
-def validate_label_request(data) -> LabelRequest | None:
+def validate_label_request(data) -> Label | None:
     try:
-        LabelRequest.model_validate(data)
+        Label.model_validate(data)
     except ValidationError as e:
         logging.error(e)
         return None
 
 
 class LabelsRequest(BaseModel):
-    labels: List[LabelRequest]
+    labels: List[Label]
 
 
 def validate_labels(data) -> LabelsRequest | None:
@@ -51,7 +51,7 @@ class RestaurantLabel:
             "CLS",
             # Top line: product name (top left) and order number (top right)
             f'TEXT 20,20,"4",0,1,1,"{self.product}"',
-            f'TEXT 340,20,"4",0,1,1,"{self.order_num}"',
+            f'TEXT 340,20,"4",0,1,1,"{self.order_num % 100:02d}"',
             # Proteins
             f'TEXT 20,80,"3",0,1,1,"{self.proteins}"',
             # Sauces
@@ -68,7 +68,7 @@ class RestaurantLabel:
         return "\r\n".join(commands)
 
 
-def build_labels_payload(labels: list[LabelRequest]) -> str:
+def build_labels_payload(labels: list[Label]) -> str:
     parts: list[str] = []
 
     for label_req in labels:
