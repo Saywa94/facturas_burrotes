@@ -1,5 +1,8 @@
 from flask import Blueprint, request
 
+from app.tspl.exceptions import TSPLException
+from app.tspl.labels import RestaurantLabel
+from app.tspl.printer import TSPLPrinter
 from app.orders import validate_order
 
 from .receipts import validate_receipt
@@ -23,6 +26,25 @@ def test():
 
     res = {"status": "ok", "message": "Printers working correctly"}
     return res
+
+
+@bp.route("/test_tspl", methods=["POST", "GET"])
+def test_tspl():
+    printer = TSPLPrinter(printer_id="tspl_label_1", ip="192.168.0.94")
+    label = RestaurantLabel(
+        product="Burro L",
+        order_num=65,
+        proteins="Pollo, Chorizo",
+        sauces="Burguer, Spicy",
+        sin_queso=True,
+    )
+    payload = label.to_tspl()
+
+    try:
+        printer.print(payload)
+        return {"status": "ok", "message": "TSPL printer reachable"}
+    except TSPLException as e:
+        return {"status": "error", "message": str(e)}
 
 
 @bp.route("/check_printers", methods=["GET"])
