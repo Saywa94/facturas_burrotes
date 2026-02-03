@@ -1,8 +1,8 @@
 from flask import Blueprint, request
 
 from app.tspl.exceptions import TSPLException
-from app.tspl.labels import RestaurantLabel
-from app.tspl.printer import TSPLPrinter
+from app.tspl.labels import RestaurantLabel, validate_labels
+from app.tspl.printer import TSPLPrinter, print_labels
 from app.orders import validate_order
 
 from .receipts import validate_receipt
@@ -33,10 +33,9 @@ def test_tspl():
     printer = TSPLPrinter(printer_id="tspl_label_1", ip="192.168.0.94")
     label = RestaurantLabel(
         product="Burro L",
-        order_num=65,
-        proteins="Pollo, Chorizo",
-        sauces="Burguer, Spicy",
-        sin_queso=True,
+        order_num=66,
+        proteins="Pollo",
+        sauces="Ajosa",
     )
     payload = label.to_tspl()
 
@@ -79,3 +78,33 @@ def print_order_route():
 
     res = {"status": "ok", "message": "Pedido impreso exitosamente"}
     return res
+
+
+@bp.route("/print_labels", methods=["POST", "GET"])
+def print_labels_route():
+    labels_req = validate_labels(request.get_json())
+    if labels_req is None or not labels_req.labels:
+        return {"status": "error", "message": "Datos de etiquetas incorrectos"}
+    # labels_req = LabelsRequest(
+    #     labels=[
+    #         LabelRequest(
+    #             product="Burro M",
+    #             order_num=66,
+    #             proteins="Pollo",
+    #             sauces="Italiana, Spicy",
+    #             sin_queso=False,
+    #         ),
+    #         LabelRequest(
+    #             product="Bowl XL",
+    #             order_num=66,
+    #             proteins="Pollo, Res, Chorizo",
+    #             sauces="Ajosa, Curry",
+    #             sin_queso=False,
+    #         ),
+    #     ]
+    # )
+
+    if not print_labels(labels_req):
+        return {"status": "error", "message": "No se pudo imprimir la etiqueta"}
+
+    return {"status": "ok", "message": f"{len(labels_req.labels)} etiquetas impresas"}

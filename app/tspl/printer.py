@@ -1,6 +1,13 @@
+import logging
 import socket
 
-from app.tspl.exceptions import TSPLTimeoutError, TSPLConnectionError, TSPLPrinterError
+from app.tspl.exceptions import (
+    TSPLException,
+    TSPLTimeoutError,
+    TSPLConnectionError,
+    TSPLPrinterError,
+)
+from app.tspl.labels import LabelsRequest, build_labels_payload
 
 
 class TSPLPrinter:
@@ -42,3 +49,18 @@ class TSPLPrinter:
             return True
         except TSPLPrinterError:
             return False
+
+
+def print_labels(labels_req: LabelsRequest) -> bool:
+    printer = TSPLPrinter(
+        printer_id="tspl_label_1",
+        ip="192.168.0.94",
+    )
+
+    try:
+        payload = build_labels_payload(labels_req.labels)
+        printer.print(payload)
+        return True
+    except TSPLException as e:
+        logging.exception(e)
+        return False
