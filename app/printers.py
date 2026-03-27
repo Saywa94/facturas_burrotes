@@ -6,6 +6,8 @@ import time
 
 from flask import current_app
 
+from app.tickets import TicketPayload, print_ticket
+
 from .orders import Order, print_order
 from .receipts import Receipt, print_receipt
 
@@ -51,10 +53,15 @@ def test_print(
 @overload
 def print(printer_location: Literal["kitchen"], data: Order) -> bool: ...
 @overload
-def print(printer_location: Literal["cashier"], data: Receipt) -> bool: ...
+def print(
+    printer_location: Literal["cashier"], data: Receipt | TicketPayload
+) -> bool: ...
 
 
-def print(printer_location: Literal["kitchen", "cashier"], data: Order | Receipt):
+def print(
+    printer_location: Literal["kitchen", "cashier"],
+    data: Order | Receipt | TicketPayload,
+):
     printer_type = current_app.config[f"{printer_location.upper()}_PRINTER_TYPE"]
     printer_addr = current_app.config[f"{printer_location.upper()}_PRINTER_ADDR"]
 
@@ -68,8 +75,12 @@ def print(printer_location: Literal["kitchen", "cashier"], data: Order | Receipt
         assert isinstance(data, Order)
         return print_order(printer, order=data)
     elif printer_location == "cashier":
-        assert isinstance(data, Receipt)
-        return print_receipt(printer, receipt=data)
+        if isinstance(data, Receipt):
+            return print_receipt(printer, receipt=data)
+        elif isinstance(data, TicketPayload):
+            return print_ticket(printer, ticket=data)
+        else:
+            raise ValueError("Invalid data type for cashier printer")
 
 
 def get_printer(

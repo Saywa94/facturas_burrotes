@@ -1,5 +1,6 @@
 from flask import Blueprint, request
 
+from app.tickets import validate_ticket
 from app.tspl.exceptions import TSPLException
 from app.tspl.labels import RestaurantLabel, validate_labels
 from app.tspl.printer import TSPLPrinter, print_labels
@@ -64,6 +65,19 @@ def print_receipt_route():
         return {"status": "error", "message": "No se pudo imprimir la factura"}
 
     res = {"status": "ok", "message": "Factura impresa exitosamente"}
+    return res
+
+
+@bp.route("/print_ticket", methods=["POST"])
+def print_ticket_route():
+    ticket_payload = validate_ticket(request.get_json())
+    if ticket_payload is None:
+        return {"status": "error", "message": "Datos de ticket incorrectos"}
+
+    if not print("cashier", ticket_payload):
+        return {"status": "error", "message": "No se pudo imprimir el ticket"}
+
+    res = {"status": "ok", "message": "Ticket impreso exitosamente"}
     return res
 
 

@@ -38,3 +38,6 @@ class BaseConfig:
     CASHIER_PRINTER_TYPE, CASHIER_PRINTER_ADDR = parse_printer(
         os.getenv("CASHIER_PRINTER")
     )
+
+
+BASE_URL = "https://www.burrotesbolivia.org"
