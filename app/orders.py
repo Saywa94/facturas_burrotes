@@ -30,9 +30,13 @@ class Order(BaseModel):
         return self
 
 
+class OrderWrapper(BaseModel):
+    order_payload: Order
+
+
 def validate_order(data) -> Order | None:
     try:
-        return Order.model_validate(data)
+        return OrderWrapper.model_validate(data).order_payload
     except ValidationError as e:
         logging.error(e)
         return None
