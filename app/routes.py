@@ -99,24 +99,6 @@ def print_labels_route():
     labels_req = validate_labels(request.get_json())
     if labels_req is None or not labels_req.labels:
         return {"status": "error", "message": "Datos de etiquetas incorrectos"}
-    # labels_req = LabelsRequest(
-    #     labels=[
-    #         Label(
-    #             product="Burro M",
-    #             order_num=66,
-    #             proteins="Pollo",
-    #             sauces="Italiana, Spicy",
-    #             sin_queso=False,
-    #         ),
-    #         Label(
-    #             product="Bowl XL",
-    #             order_num=66,
-    #             proteins="Pollo, Res, Chorizo",
-    #             sauces="Ajosa, Curry",
-    #             sin_queso=False,
-    #         ),
-    #     ]
-    # )
 
     if not print_labels(labels_req):
         return {"status": "error", "message": "No se pudo imprimir la etiqueta"}
