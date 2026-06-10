@@ -59,6 +59,10 @@ def print_order(p: Escpos, order: Order):
         if order.customer:
             p.set(align="left", custom_size=True, height=2, width=1)
             p.textln(f"Cliente: {order.customer}")
+        # If there is a comment
+        if order.comment:
+            p.set(bold=False, align="left", custom_size=True, height=2, width=1)
+            p.textln(order.comment)
 
         # Date time
         p.set(bold=False, align="left", custom_size=True, height=1, width=1)
@@ -73,14 +77,6 @@ def print_order(p: Escpos, order: Order):
         if order.take_out:
             p.ln()
             print_order_items(p, order.take_out, "Para Llevar", delivery=order.delivery)
-
-        # Comments
-        if order.comment:
-            p.ln(2)
-            p.set(align="left", bold=True)
-            p.textln("Comentario:")
-            p.set(bold=False)
-            p.textln(order.comment)
 
         p.ln()
 
